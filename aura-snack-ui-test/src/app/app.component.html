@@ -1,0 +1,15 @@
+<p-sidebar [(visible)]="visibleSidebar" [modal]="false" [showCloseIcon]="false" [style]="{width:'250px'}">
+  <h3>Menu</h3>
+  <ul>
+    <li><a routerLink="/commands" routerLinkActive="active-link">Commands</a></li>
+    <li><a routerLink="/stock" routerLinkActive="active-link">Stock</a></li>
+    <li><a routerLink="/users" routerLinkActive="active-link">Users</a></li>
+  </ul>
+</p-sidebar>
+
+<div class="app-container" >
+  <button pButton icon="pi pi-bars" (click)="visibleSidebar = true"></button>
+  <button pButton icon="pi pi-sun" class="theme-switcher" (click)="toggleDarkMode()"></button>
+  
+  <router-outlet></router-outlet>
+</div>
