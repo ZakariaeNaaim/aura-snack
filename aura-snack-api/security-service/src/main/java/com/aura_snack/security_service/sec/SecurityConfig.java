@@ -1,8 +1,6 @@
 package com.aura_snack.security_service.sec;
 
-
-import com.basry.securityservice.sec.filters.JwtAuthenticationFilter;
-import com.basry.securityservice.sec.filters.JwtAuthorizationFilter;
+import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,94 +8,69 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtEncoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import javax.crypto.spec.SecretKeySpec;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
-import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
-
-    @Value("${jwt.secret}")
+    @Value("${secret.key}")
     private String secretKey;
-
-    private AuthenticationManager authenticationManager;
-
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
-        return authenticationConfiguration.getAuthenticationManager();
-    }
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
-        return httpSecurity
-                .cors(Customizer.withDefaults())
-                .sessionManagement(sm->sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .csrf(csrf->csrf.disable())
-                .headers(h->h.frameOptions(fo->fo.disable()))
-                .authorizeHttpRequests(ar->ar.requestMatchers(("/h2-console/**", "/refreshToken/**", "/swagger-ui/**", "/v3/api-docs/**","/login/**").permitAll())
-                .authorizeHttpRequests(ar->ar.anyRequest().authenticated())
-                .addFilter(new JwtAuthenticationFilter(authenticationManager))
-                .addFilterBefore(new JwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class)
-                //.authorizeHttpRequests(ar->ar.requestMatchers("/api/products/**").hasAuthority("ADMIN"))
-                //.oauth2ResourceServer(o2->o2.jwt(jwt->jwt.jwtAuthenticationConverter(jwtAuthConverter)))
-               // .oauth2ResourceServer(o2->o2.jwt(Customizer.withDefaults()))
-                .build();
-    }
-    @Bean
-    CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("*"));
-        configuration.setAllowedMethods(Arrays.asList("*"));
-        configuration.setAllowedHeaders(Arrays.asList("*"));
-        //configuration.setExposedHeaders(Arrays.asList("*"));
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
-    }
-
-    public PasswordEncoder passwordEncoder() {
-        // If you want to keep using PBKDF2, you can implement your own PasswordEncoder
-        return new PasswordEncoder() {
-            @Override
-            public String encode(CharSequence rawPassword) {
-                // Custom encoding logic or simply return rawPassword for now
-                return rawPassword.toString();
-            }
-
-            @Override
-            public boolean matches(CharSequence rawPassword, String encodedPassword) {
-                try {
-                    return validatePassword.validatePasswordd(rawPassword.toString(), encodedPassword);
-                } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        };
-    }
-
-
-
-    @Bean
-    public AuthenticationManager authenticationManager(UserDetailsService userDetailsService) throws Exception {
+    AuthenticationManager authenticationManager(UserDetailsService userDetailsService){
         DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
         daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
         daoAuthenticationProvider.setUserDetailsService(userDetailsService);
-        return  new ProviderManager(daoAuthenticationProvider);
+        return new ProviderManager(daoAuthenticationProvider);
+    }
+    @Bean
+    InMemoryUserDetailsManager inMemoryUserDetailsManager(){
+        PasswordEncoder passwordEncoder=passwordEncoder();
+        return new InMemoryUserDetailsManager(
+                User.withUsername("user1").password(passwordEncoder.encode("1234")).authorities("USER").build() ,
+                User.withUsername("admin").password(passwordEncoder.encode("1234")).authorities("USER","ADMIN").build()
+        );
+    }
+    @Bean
+    SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
+        return httpSecurity
+                .csrf(csrf-> csrf.disable())
+                .sessionManagement(sm->sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(ar->ar.requestMatchers("/auth/**").permitAll())
+                .authorizeHttpRequests(ar->ar.anyRequest().authenticated())
+                .oauth2ResourceServer(oauth2->oauth2.jwt(Customizer.withDefaults()))
+                //.httpBasic(Customizer.withDefaults())
+                .build();
+    }
+    @Bean
+    PasswordEncoder passwordEncoder(){
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    JwtEncoder jwtEncoder(){
+        //String secretKey="9faa372517ac1d389758d3750fc07acf00f542277f26fec1ce4593e93f64e338";
+        return new NimbusJwtEncoder(new ImmutableSecret<>(secretKey.getBytes()));
+    }
+    @Bean
+    JwtDecoder jwtDecoder(){
+        //String secretKey="9faa372517ac1d389758d3750fc07acf00f542277f26fec1ce4593e93f64e338";
+        SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey.getBytes(), "RSA");
+        return NimbusJwtDecoder.withSecretKey(secretKeySpec).macAlgorithm(MacAlgorithm.HS512).build();
     }
 }
-
