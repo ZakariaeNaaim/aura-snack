@@ -38,14 +38,14 @@ public class SecurityConfig {
         daoAuthenticationProvider.setUserDetailsService(userDetailsService);
         return new ProviderManager(daoAuthenticationProvider);
     }
-    @Bean
+  /*  @Bean
     InMemoryUserDetailsManager inMemoryUserDetailsManager(){
         PasswordEncoder passwordEncoder=passwordEncoder();
         return new InMemoryUserDetailsManager(
                 User.withUsername("user1").password(passwordEncoder.encode("1234")).authorities("USER").build() ,
                 User.withUsername("admin").password(passwordEncoder.encode("1234")).authorities("USER","ADMIN").build()
         );
-    }
+    }*/
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
