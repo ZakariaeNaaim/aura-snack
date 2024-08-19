@@ -1,4 +1,4 @@
-package com.aura_snack.security_service.sec.services;
+/*package com.aura_snack.security_service.sec.services;
 
 import com.aura_snack.security_service.sec.entities.AppUser;
 import org.springframework.security.core.GrantedAuthority;
@@ -31,3 +31,4 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         return new User(appUser.getUsername(), appUser.getPassword(), authorities);
     }
 }
+*/

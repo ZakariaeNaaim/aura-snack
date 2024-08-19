@@ -15,10 +15,6 @@ import java.util.ArrayList;
 @SpringBootApplication
 public class SecurityServiceApplication {
 
-	@Bean
-	PasswordEncoder passwordEncoder(){
-		return new BCryptPasswordEncoder();
-	}
 	public static void main(String[] args) {
 		SpringApplication.run(SecurityServiceApplication.class, args);
 	}
