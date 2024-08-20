@@ -24,7 +24,7 @@
         <module>config-server</module>
         <module>auth-jwt-service</module>
         <module>orders-service</module>
-        <module>products-service</module>
+        <module>inventory-service</module>
         <module>security-service</module>
     </modules>
     <dependencies>
