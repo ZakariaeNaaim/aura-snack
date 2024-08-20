@@ -1,18 +1,17 @@
-package com.aura_snack.security_service.springjwt.security.jwt;
-
-import java.security.Key;
-import java.util.Date;
+/*package com.aura_snack.orders_service.security.jwt;
 
 import com.aura_snack.security_service.springjwt.security.services.UserDetailsImpl;
+import io.jsonwebtoken.*;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
-import io.jsonwebtoken.*;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
+import java.security.Key;
+import java.util.Date;
 
 @Component
 public class JwtUtils {
@@ -23,10 +22,6 @@ public class JwtUtils {
 
   @Value("${bezkoder.app.jwtExpirationMs}")
   private int jwtExpirationMs;
-
-  public void validateToken(final String token) {
-    Jwts.parser().setSigningKey(key()).build().parseClaimsJws(token);
-  }
 
   public String generateJwtToken(Authentication authentication) {
 
@@ -66,3 +61,4 @@ public class JwtUtils {
     return false;
   }
 }
+*/
