@@ -18,8 +18,8 @@ public class GatewayConfig {
                         .filters(f -> f.rewritePath("/orders/(?<segment>.*)", "/${segment}"))
                         .uri("http://localhost:8081")
                 )
-                .route("products-service", r -> r.path("/products/**")
-                        .filters(f -> f.rewritePath("/products/(?<segment>.*)", "/${segment}"))
+                .route("inventory-service", r -> r.path("/inventory/**")
+                        .filters(f -> f.rewritePath("/inventory/(?<segment>.*)", "/${segment}"))
                         .uri("http://localhost:8082")
                 )
                 .build();
