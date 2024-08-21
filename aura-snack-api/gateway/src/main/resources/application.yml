@@ -3,21 +3,21 @@ spring:
     gateway:
       routes:
         - id: orders-service
-          uri: lb://ORDERS-SERVICE
+          uri: lb://orders-service
           predicates:
             - Path=/orders/**
           filters:
             - AuthenticationFilter
 
         - id: inventory-service
-          uri: lb://INVENTORY-SERVICE
+          uri: lb://inventory-service
           predicates:
             - Path=/inventory/**
           filters:
             - AuthenticationFilter
 
         - id: security-service
-          uri: lb://SECURITY-SERVICE
+          uri: lb://security-service
           predicates:
             - Path=/auth/**
 
@@ -28,3 +28,11 @@ eureka:
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka/
+
+server:
+  port: 8080
+
+  logging:
+    level:
+      org.springframework.cloud.gateway: DEBUG
+      com.netflix.eureka: DEBUG
