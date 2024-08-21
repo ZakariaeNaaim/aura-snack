@@ -2,7 +2,6 @@ package com.aura_snack.security_service.springjwt.security.services;
 
 import com.aura_snack.security_service.springjwt.models.User;
 import com.aura_snack.security_service.springjwt.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -12,8 +11,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
-  @Autowired
-  UserRepository userRepository;
+
+  private final UserRepository userRepository;
+
+  UserDetailsServiceImpl(UserRepository userRepository) {
+    this.userRepository = userRepository;
+  }
 
   @Override
   @Transactional

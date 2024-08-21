@@ -24,14 +24,18 @@ public class JwtUtils {
   @Value("${bezkoder.app.jwtExpirationMs}")
   private int jwtExpirationMs;
 
+  public void validateToken(final String token) {
+    Jwts.parser().setSigningKey(key()).build().parseClaimsJws(token);
+  }
+
   public String generateJwtToken(Authentication authentication) {
 
     UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
 
     return Jwts.builder()
-        .setSubject((userPrincipal.getUsername()))
-        .setIssuedAt(new Date())
-        .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
+        .subject(userPrincipal.getUsername())
+        .issuedAt(new Date())
+        .expiration(new Date((new Date()).getTime() + jwtExpirationMs))
         .signWith(key(), SignatureAlgorithm.HS256)
         .compact();
   }
@@ -47,7 +51,7 @@ public class JwtUtils {
 
   public boolean validateJwtToken(String authToken) {
     try {
-      Jwts.parser().setSigningKey(key()).build().parse(authToken);
+      Jwts.parser().setSigningKey(key()).build().parseClaimsJws(authToken);
       return true;
     } catch (MalformedJwtException e) {
       logger.error("Invalid JWT token: {}", e.getMessage());

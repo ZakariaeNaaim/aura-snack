@@ -22,7 +22,6 @@
         <module>eureka-server</module>
         <module>gateway</module>
         <module>config-server</module>
-        <module>auth-jwt-service</module>
         <module>orders-service</module>
         <module>inventory-service</module>
         <module>security-service</module>
