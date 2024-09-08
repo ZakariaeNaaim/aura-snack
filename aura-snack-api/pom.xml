@@ -24,7 +24,6 @@
         <module>config-server</module>
         <module>orders-service</module>
         <module>inventory-service</module>
-        <module>security-service</module>
     </modules>
     <dependencies>
         <dependency>

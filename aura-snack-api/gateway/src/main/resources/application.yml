@@ -6,15 +6,12 @@ spring:
           uri: lb://orders-service
           predicates:
             - Path=/orders/**
-          filters:
-            - AuthenticationFilter
 
         - id: inventory-service
           uri: lb://inventory-service
           predicates:
             - Path=/inventory/**
-          filters:
-            - AuthenticationFilter
+
 
         - id: security-service
           uri: lb://security-service
